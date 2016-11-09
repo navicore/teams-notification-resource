@@ -1,4 +1,4 @@
-based on the slack resource by Nopik at https://github.com/Nopik/slack-notification-resource
+based on the cloudfoundry slack resource https://github.com/cloudfoundry-community/slack-notification-resource
 
 # Teams notification sending resource 
 
