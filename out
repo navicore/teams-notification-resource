@@ -126,5 +126,5 @@ fi
 timestamp="$(jq -n "{version:{timestamp:\"$(date +%s)\"}}")"
 echo "$timestamp $metadata $debug_info " | jq -s add  >&3
 
-echo "posted body:\n$body"
+echo "posted body: $compact_body"
 
