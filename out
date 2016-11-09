@@ -18,12 +18,7 @@ webhook_url="$(jq -r '.source.url' < "${payload}")"
 allow_insecure="$(jq -r '.source.insecure // "false"' < "${payload}")"
 raw_ca_certs=$(jq -r '.source.ca_certs // []' < $payload)
 
-text_file="$(jq -r '.params.text_file // ""' < "${payload}")"
 text="$(jq '(.params.text // "${TEXT_FILE_CONTENT}")' < "${payload}")"
-username="$(jq '(.params.username // null)' < "${payload}")"
-icon_url="$(jq '(.params.icon_url // null)' < "${payload}")"
-icon_emoji="$(jq '(.params.icon_emoji // null)' < "${payload}")"
-channel="$(jq '(.params.channel // null)' < "${payload}")"
 
 debug="$(jq -r '.params.debug // "false"' < "${payload}")"
 show_metadata="$(jq -r '.params.metadata // "false"' < "${payload}")"
@@ -66,18 +61,9 @@ then
   [[ -z "${text}" ]] && text="_(missing notification text)_"
   text="$(echo "${text}" | jq -R -s .)"
 
-  [[ "${username}"   != "null" ]] && username="$(eval "printf ${username}" | jq -R -s .)"
-  [[ "${icon_url}"   != "null" ]] && icon_url="$(eval "printf ${icon_url}" | jq -R -s .)"
-  [[ "${icon_emoji}" != "null" ]] && icon_emoji="$(eval "printf ${icon_emoji}" | jq -R -s .)"
-  [[ "${channel}"    != "null" ]] && channel="$(eval "printf ${channel}" | jq -R -s .)"
-
   body="$(cat <<EOF
 {
-  "text": ${text},
-  "username": ${username},
-  "icon_url": ${icon_url},
-  "icon_emoji": ${icon_emoji},
-  "channel": ${channel}
+  "text": ${text}
 }
 EOF
   )"
@@ -123,7 +109,10 @@ then
   text_file_exists="No" && [[ -n "$text_file" ]] && [[ -f "$text_file" ]] && text_file_exists=Yes
   metadata="$(cat <<EOF
 {
-  {"name": "text", "value": ${text}}
+  "metadata": [
+    {"name": "url",               "value": ${redacted_webhook_url}},
+    {"name": "text",              "value": ${text}                }
+  ]
 }
 EOF
   )"
@@ -136,4 +125,6 @@ fi
 
 timestamp="$(jq -n "{version:{timestamp:\"$(date +%s)\"}}")"
 echo "$timestamp $metadata $debug_info " | jq -s add  >&3
+
+echo "posted body:\n$body"
 
