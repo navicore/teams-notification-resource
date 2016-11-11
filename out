@@ -30,7 +30,6 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
-webhook_url=$(rawurlencode "$webhook_url")
 webhook_url=`eval echo "$webhook_url"`
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
 
