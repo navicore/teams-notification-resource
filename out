@@ -23,7 +23,7 @@ curl -v -d "${body}" ${CURL_OPTION} "${webhook_url}" 2>&1 | sed -e "s#${url_path
 timestamp=$(date +%s)
 metadata="$(cat <<EOF
 {
-  "version": {"timestamp": ${timestamp}},
+  "version": {"timestamp": "${timestamp}"},
   "metadata": [
     {"name": "url", "value": ${redacted_webhook_url}}
   ]
