@@ -30,5 +30,5 @@ EOF
 )"
 
 timestamp="$(jq -n "{version:{timestamp:\"$(date +%s)\"}}")"
-echo "{$timestamp, $metadata}" 
+echo "$timestamp $metadata"  >&3
 
