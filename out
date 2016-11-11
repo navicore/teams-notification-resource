@@ -12,14 +12,16 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
-text="$(jq -r '.params.text' < "${payload}")"
+eval webhook_url=$webhook_url
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
+
+text="$(jq -r '.params.text' < "${payload}")"
+eval text=$text
 body="{\"text\": \"${text}\"}"
 
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
 curl -v -d "${body}" ${CURL_OPTION} "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
 
-#timestamp="$(jq -n "version:{timestamp:\"$(date +%s)\"}")"
 timestamp=$(date +%s)
 metadata="$(cat <<EOF
 {
