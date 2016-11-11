@@ -1,5 +1,23 @@
 #!/usr/bin/env bash
 
+rawurlencode() {
+  local string="${1}"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0 ; pos<strlen ; pos++ )); do
+     c=${string:$pos:1}
+     case "$c" in
+        [-_.~a-zA-Z0-9] ) o="${c}" ;;
+        * )               printf -v o '%%%02x' "'$c"
+     esac
+     encoded+="${o}"
+  done
+  echo "${encoded}"
+  REPLY="${encoded}"
+}
+
 CURL_OPTION="-k"
 
 set -e
@@ -12,10 +30,12 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
+webhook_url=$(rawurlencode "$webhook_url")
 webhook_url=`eval echo "$webhook_url"`
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
 
 text="$(jq -r '.params.text' < "${payload}")"
+text=$(rawurlencode "$text")
 text=`eval echo "$text"`
 body="{\"text\": \"${text}\"}"
 
