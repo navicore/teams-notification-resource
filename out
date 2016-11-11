@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+CURL_OPTION="-k"
+
 set -e
 exec 3>&1
 exec 1>&2
@@ -12,11 +14,10 @@ cat > "${payload}" <&0
 webhook_url="$(jq -r '.source.url' < "${payload}")"
 text="$(jq -r '.params.text' < "${payload}")"
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
-body="{\"text\": ${text}}"
+body="{\"text\": \"${text}\"}"
 
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
-curl -v -X POST --data-urlencode "payload=${body}" ${CURL_OPTION} "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
-#echo "ejs curl -v -X POST --data-urlencode \"payload=${body}\" ${CURL_OPTION} \"${webhook_url}\" 2>&1 | sed -e \"s#${url_path}#***WEBHOOK URL REDACTED***#g\""
+curl -v -d "${body}" ${CURL_OPTION} "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
  
 metadata="$(cat <<EOF
 {
