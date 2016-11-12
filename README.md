@@ -21,19 +21,18 @@ $ATC_EXTERNAL_URL
 ## STATUS
 
 * Alpha Quality
-* But it works - meets my needs
+* Works - meets my specific needs
 
 *Limitations*:
 
 * *Message payload is limited to markdown.*
-* *Assumes every message should be presented with a link/button.*
-* *does not ensure ssl cert at the office.com end is corret (uses -k on curl)*
+* *does not ensure ssl cert at the office.com end is correct (uses -k on curl)*
 * *naive encoding - it may be that user data containing special chars will outbound messaging - though passing links with markdown works fine for me so far*
 
 ## TODO
 
-* document examples of passing along PR numbers and git user info
-* make `potentialAction` button/link optional
+* Document usage examples that send PR numbers, commit IDs,  and git user name and avatar links
+* Make `potentialAction` button/link optional
 
 ## Source Configuration
 
