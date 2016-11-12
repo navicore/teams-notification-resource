@@ -30,12 +30,11 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
-#webhook_url=`eval echo "$webhook_url"`
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
 
 text="$(jq -r '.params.text' < "${payload}")"
 
-text="$(eval printf ${text} )"
+text="$(eval printf \"${text}\" )"
 [[ -z "${text}" ]] && text="_(missing notification text)_"
 text="$(echo "${text}" | jq -R -s .)"
 
