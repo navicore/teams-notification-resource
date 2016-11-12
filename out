@@ -15,6 +15,10 @@ text="$(jq -r '.params.text' < "${payload}")"
 text="${text//\(/\\(}"
 text="${text//\)/\\)}"
 text="${text//\:/\\:}"
+text=`eval echo $text`
+text="${text//\{/\\{}"
+text="${text//\}/\\}}"
+
 body="{\"text\": \"${text}\"}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
