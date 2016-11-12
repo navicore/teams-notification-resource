@@ -10,14 +10,16 @@ set -x
 payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
-text="$(jq -r '.params.text' < "${payload}")"
+format="markdown"
+
+text="$(jq -r '.params.text // "NO MSG"' < "${payload}")"
 # escape ( and ) from markdown
 text="${text//\(/\\(}"
 text="${text//\)/\\)}"
 text="${text//\:/\\:}"
 text=`eval echo $text`
 
-body="{\"text\": \"${text}\"}"
+body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\"}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
