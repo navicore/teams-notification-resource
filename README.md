@@ -53,10 +53,10 @@ example of an alert in a pull-request job
 ```
 - name: Test-Pull-Request
   plan:
-  - get: [PIPELINE]-pull-request
+  - get: {{mypipeline}}-pull-request
     trigger: true
   - task: test-pr
-    file: [PIPELINE]-pull-request/pipeline/test-pr.yml
+    file: {{mypipeline}}-pull-request/pipeline/test-pr.yml
     on_success:
       put: alert
       params:
