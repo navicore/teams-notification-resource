@@ -12,8 +12,22 @@ cat > "${payload}" <&0
 
 format="markdown"
 color="$(jq -r '.params.color // "EA4300"' < "${payload}")"
+
+#todo: DRY
+
 actionName="$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")"
+# escape ( and ) from markdown
+actionName="${actionName//\(/\\(}"
+actionName="${actionName//\)/\\)}"
+actionName="${actionName//\:/\\:}"
+actionName=`eval echo $actionName`
+
 actionTarget="$(jq -r '.params.actionTarget // "https://concourse.ci"' < "${payload}")"
+# escape ( and ) from markdown
+actionTarget="${actionTarget//\(/\\(}"
+actionTarget="${actionTarget//\)/\\)}"
+actionTarget="${actionTarget//\:/\\:}"
+actionTarget=`eval echo $actionTarget`
 
 title="$(jq -r '.params.title // "Concourse CI"' < "${payload}")"
 # escape ( and ) from markdown
