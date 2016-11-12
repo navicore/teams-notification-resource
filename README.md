@@ -1,8 +1,6 @@
 # Concourse CI Teams Resource
 
-### Concourse CI Notification Sending Resource for Microsoft Teams
-
-Sends messages to [Teams](https://teams.microsoft.com) from within Concourse CI
+Sends messages to [Microsoft Teams](https://teams.microsoft.com) from within Concourse CI
 pipelines.
 
 Implements the Microsoft Teams [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
@@ -12,14 +10,15 @@ the Concourse CI [resource](https://concourse.ci/implementing-resources.html) pr
 
 * The resource works - meets my needs. 
 
-Current Limitations:
+*Current Limitations*:
 
-* Message payload is limited to markdown.
-* Assumes every message should be presented with a link/button.
+* *Message payload is limited to markdown.*
+* *Assumes every message should be presented with a link/button.*
 
 ## TODO
 
 * document examples of passing along PR numbers and git user info
+* make `potentialAction` button/link optional
 
 ## Source Configuration
 
