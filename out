@@ -21,7 +21,7 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 format="markdown"
-color="$(jq -r '.params.color // "EA4300"' < "${payload}")"
+color="$(jq -r '.params.color // "00EA43"' < "${payload}")"
 
 actionName=$(evaluate "$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")")
 
