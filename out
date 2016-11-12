@@ -11,6 +11,16 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 format="markdown"
+color="$(jq -r '.params.color // "EA4300"' < "${payload}")"
+actionName="$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")"
+actionTarget="$(jq -r '.params.actionTarget // "https://concourse.ci"' < "${payload}")"
+
+title="$(jq -r '.params.title // "Concourse CI"' < "${payload}")"
+# escape ( and ) from markdown
+title="${title//\(/\\(}"
+title="${title//\)/\\)}"
+title="${title//\:/\\:}"
+title=`eval echo $title`
 
 text="$(jq -r '.params.text // "NO MSG"' < "${payload}")"
 # escape ( and ) from markdown
@@ -19,7 +29,8 @@ text="${text//\)/\\)}"
 text="${text//\:/\\:}"
 text=`eval echo $text`
 
-body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\"}"
+#body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\"}"
+body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\", \"title\": \"${title}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
