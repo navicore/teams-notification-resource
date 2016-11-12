@@ -14,6 +14,7 @@ the Concourse CI [resource](https://concourse.ci/implementing-resources.html) pr
 
 * *Message payload is limited to markdown.*
 * *Assumes every message should be presented with a link/button.*
+* *does not ensure ssl cert at the office.com end is corret (uses -k on curl)*
 
 ## TODO
 
