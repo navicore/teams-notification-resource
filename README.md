@@ -6,7 +6,8 @@ pipelines.
 Implements the Microsoft Teams [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
 the Concourse CI [resource](https://concourse.ci/implementing-resources.html) protocols.
 
-Resolves at runtime Concourse CI environment variables referenced in your pipeline such as:
+Resolves at runtime Concourse CI environment variables referenced in your Teams
+connector messages such as:
 
 ```
 $BUILD_ID
@@ -26,6 +27,7 @@ $ATC_EXTERNAL_URL
 * *Message payload is limited to markdown.*
 * *Assumes every message should be presented with a link/button.*
 * *does not ensure ssl cert at the office.com end is corret (uses -k on curl)*
+* *naive encoding - it may be that user data containing special chars will outbound messaging - though passing links with markdown works fine for me so far*
 
 ## TODO
 
