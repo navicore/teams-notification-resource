@@ -5,7 +5,17 @@ CURL_OPTION="-k"
 set -e
 exec 3>&1
 exec 1>&2
-set -x
+#set -x
+
+function evaluate {
+  __var=$1
+  # escape ( and ) from markdown
+  __var="${__var//\(/\\(}"
+  __var="${__var//\)/\\)}"
+  __var="${__var//\:/\\:}"
+  __var=`eval echo $__var`
+  echo $__var
+}
 
 payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
@@ -13,37 +23,14 @@ cat > "${payload}" <&0
 format="markdown"
 color="$(jq -r '.params.color // "EA4300"' < "${payload}")"
 
-#todo: DRY
+actionName=$(evaluate "$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")")
 
-actionName="$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")"
-# escape ( and ) from markdown
-actionName="${actionName//\(/\\(}"
-actionName="${actionName//\)/\\)}"
-actionName="${actionName//\:/\\:}"
-actionName=`eval echo $actionName`
+actionTarget=$(evaluate "$(jq -r '.params.actionTarget // "https://concourse.ci"' < "${payload}")")
 
-actionTarget="$(jq -r '.params.actionTarget // "https://concourse.ci"' < "${payload}")"
-# escape ( and ) from markdown
-actionTarget="${actionTarget//\(/\\(}"
-actionTarget="${actionTarget//\)/\\)}"
-actionTarget="${actionTarget//\:/\\:}"
-actionTarget=`eval echo $actionTarget`
+title=$(evaluate "$(jq -r '.params.title // "Concourse CI"' < "${payload}")")
 
-title="$(jq -r '.params.title // "Concourse CI"' < "${payload}")"
-# escape ( and ) from markdown
-title="${title//\(/\\(}"
-title="${title//\)/\\)}"
-title="${title//\:/\\:}"
-title=`eval echo $title`
+text=$(evaluate "$(jq -r '.params.text // "NO MSG"' < "${payload}")")
 
-text="$(jq -r '.params.text // "NO MSG"' < "${payload}")"
-# escape ( and ) from markdown
-text="${text//\(/\\(}"
-text="${text//\)/\\)}"
-text="${text//\:/\\:}"
-text=`eval echo $text`
-
-#body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\"}"
 body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\", \"title\": \"${title}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
