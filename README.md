@@ -20,9 +20,10 @@ $ATC_EXTERNAL_URL
 
 ## STATUS
 
-* The resource works - meets my needs. 
+* Alpha Quality
+* But it works - meets my needs
 
-*Current Limitations*:
+*Limitations*:
 
 * *Message payload is limited to markdown.*
 * *Assumes every message should be presented with a link/button.*
