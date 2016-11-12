@@ -27,7 +27,7 @@ $ATC_EXTERNAL_URL
 
 * *Message payload is limited to markdown.*
 * *does not ensure ssl cert at the office.com end is correct (uses -k on curl)*
-* *naive encoding - it may be that user data containing special chars will outbound messaging - though passing links with markdown works fine for me so far*
+* *naive encoding - it may be that messages containing special chars will break things - though passing links with markdown works fine for me so far*
 
 ## TODO
 
