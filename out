@@ -16,8 +16,6 @@ text="${text//\(/\\(}"
 text="${text//\)/\\)}"
 text="${text//\:/\\:}"
 text=`eval echo $text`
-text="${text//\{/\\{}"
-text="${text//\}/\\}}"
 
 body="{\"text\": \"${text}\"}"
 
