@@ -1,23 +1,5 @@
 #!/usr/bin/env bash
 
-rawurlencode() {
-  local string="${1}"
-  local strlen=${#string}
-  local encoded=""
-  local pos c o
-
-  for (( pos=0 ; pos<strlen ; pos++ )); do
-     c=${string:$pos:1}
-     case "$c" in
-        [-_.~a-zA-Z0-9] ) o="${c}" ;;
-        * )               printf -v o '%%%02x' "'$c"
-     esac
-     encoded+="${o}"
-  done
-  echo "${encoded}"
-  REPLY="${encoded}"
-}
-
 CURL_OPTION="-k"
 
 set -e
@@ -26,20 +8,15 @@ exec 1>&2
 set -x
 
 payload=$(mktemp /tmp/resource-in.XXXXXX)
-
 cat > "${payload}" <&0
+text="$(jq -r '.params.text' < "${payload}")"
+# escape ( and ) from markdown
+text="${text//\(/\\(}"
+text="${text//\)/\\)}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
 
-text="$(jq -r '.params.text' < "${payload}")"
-
-text="$(eval printf \"${text}\" )"
-[[ -z "${text}" ]] && text="_(missing notification text)_"
-#text="$(echo "${text}" | jq -R -s .)"
-
-#text=$(rawurlencode "$text")
-#text=`eval echo "$text"`
 body="{\"text\": \"${text}\"}"
 
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
