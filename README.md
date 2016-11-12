@@ -6,6 +6,17 @@ pipelines.
 Implements the Microsoft Teams [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
 the Concourse CI [resource](https://concourse.ci/implementing-resources.html) protocols.
 
+Resolves at runtime Concourse CI environment variables referenced in your pipeline such as:
+
+```
+$BUILD_ID
+$BUILD_NAME
+$BUILD_JOB_NAME
+$BUILD_PIPELINE_NAME
+$BUILD_TEAM_NAME
+$ATC_EXTERNAL_URL
+```
+
 ## STATUS
 
 * The resource works - meets my needs. 
