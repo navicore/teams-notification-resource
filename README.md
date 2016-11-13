@@ -1,10 +1,12 @@
 # Concourse CI Teams Resource
 
-Sends messages to [Microsoft Teams](https://teams.microsoft.com) from within Concourse CI
-pipelines.
+Sends messages to [Microsoft Teams](https://teams.microsoft.com) from
+within [Concourse CI](https://concourse.ci) pipelines.
 
-Implements the Microsoft Teams [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
-the Concourse CI [resource](https://concourse.ci/implementing-resources.html) protocols.
+Implements the Microsoft Teams
+[Connector](https://dev.outlook.com/Connectors/Reference) protocols and
+the Concourse CI [resource](https://concourse.ci/implementing-resources.html)
+protocols.
 
 ![teams](images/teams2.png)
 
