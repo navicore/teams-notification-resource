@@ -101,6 +101,7 @@ example of an alert in a pull-request job
 
 * `text`: *Required.* Text of the message to send - markdown supported
 * `title`: *Optional.*
+* `color`: *Optional.* Sidebar color (doesn't appear to be implemented yet in the Teams UI)
 * `actionName`: *Optional.* Text on the button/link
-* `actionTarget`: *Optional.* URL to connect to the button/link
+* `actionTarget`: *Optional.* URL to connect to the button/link (shows up as a link though the Teams docs show a button)
 
