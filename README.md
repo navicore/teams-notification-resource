@@ -23,18 +23,23 @@ $ATC_EXTERNAL_URL
 * Alpha Quality
 * Works - meets my specific needs
 
-*Limitations*:
-
-* *Message payload is limited to markdown.*
-* *does not ensure ssl cert at the office.com end is correct (uses -k on curl)*
-* *naive marshaling - it may be that messages containing special chars will break things - though passing links and basic formatting (bold, italics) with markdown works fine*
-
 ## TODO
 
-* Document usage examples that send PR numbers, commit IDs,  and git user name and avatar links
 * Make `potentialAction` button/link optional
 
+## SETUP
+
+1. Create a connector in the Teams UI - go to the hamburger menu of the channel you want to post
+notifications to.
+![connector](images/connector.png)
+2. Select "Incoming Webhook" and safe the resulting link after being prompted for details like the icon and name
+of the connector.
+![webhook](images/webhook.png)
+
 ## Source Configuration
+
+example:
+![pipeline](images/pipeline.png)
 
 ```
 resources:
@@ -45,7 +50,7 @@ resources:
       url: https://outlook.office365.com/webhook/blah-blah-blah
 ```
 * `url`: *Required.* The webhook URL as provided by Teams when you add a
-connection for "Generic Webhook". Usually in the
+connection for "Incomming Webhook". Usually in the
 form: `https://outlook.office365.com/webhook/XXX`
 
 don't forget to define the non-built-in type:
