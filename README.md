@@ -27,7 +27,7 @@ $ATC_EXTERNAL_URL
 
 * Make `potentialAction` button/link optional
 
-## SETUP
+## QUICK SETUP
 
 1. Create a connector in the Teams UI - go to the hamburger menu of the channel you want to post
 notifications to.
@@ -35,11 +35,13 @@ notifications to.
 2. Select "Incoming Webhook" and safe the resulting link after being prompted for details like the icon and name
 of the connector.
 ![webhook](images/webhook.png)
+3. Use the webhook url from above in your pipeline `source` definition.  The example below creates an `alert` resource.
 
-## Source Configuration
+## PIPELINE EXAMPLE
 
-example:
 ![pipeline](images/pipeline.png)
+
+### Source Configuration
 
 ```
 resources:
