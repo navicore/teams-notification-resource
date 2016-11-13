@@ -37,7 +37,8 @@ notifications to.
 2. Select "Incoming Webhook" and save the resulting link after being prompted for details like the icon and name
 of the connector.
 ![webhook](images/webhook.png)
-3. Use the webhook url from above in your pipeline `source` definition.  The example below creates an `alert` resource.
+3. Use the webhook url from above in your pipeline `source` definition.  The example below creates an `alert` resource.  Each point in the pipeline labeled `alert` is a Microsoft Teams Connector message.
+
 
 ## PIPELINE EXAMPLE
 
