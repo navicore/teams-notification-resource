@@ -38,7 +38,7 @@ $ATC_EXTERNAL_URL
 1. Open the Microsoft Teams UI.
 2. Identify the channel you wish to post notifications to - ie: #devops....
 3. Open the "more options" menu of that channel and select "Connectors".
-    ![connector](images/connector.png)
+![connector](images/connector.png)
 4. Select "Incoming Webhook" and respond to the propts for details like the
 icon and name of the connector.
     ![webhook](images/webhook.png)
