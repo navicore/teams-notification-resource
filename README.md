@@ -41,7 +41,7 @@ $ATC_EXTERNAL_URL
 ![connector](images/connector.png)
 4. Select "Incoming Webhook" and respond to the propts for details like the
 icon and name of the connector.
-    ![webhook](images/webhook.png)
+![webhook](images/webhook.png)
 5. Use the webhook url from above in your pipeline `source` definition.  The
 example below creates an `alert` resource.  Each point in the pipeline labeled
 `alert` is a Microsoft Teams Connector message.
