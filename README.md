@@ -6,7 +6,7 @@ pipelines.
 Implements the Microsoft Teams [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
 the Concourse CI [resource](https://concourse.ci/implementing-resources.html) protocols.
 
-![teams](images/teams.png)
+![teams](images/teams2.png)
 
 Resolves at runtime Concourse CI environment variables referenced in your Teams
 connector messages such as:
