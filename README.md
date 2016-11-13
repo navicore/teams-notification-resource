@@ -36,13 +36,13 @@ $ATC_EXTERNAL_URL
 ## SETUP
 
 1. Open the Microsoft Teams UI.
-2. Create a connector using the "more options" menu of the channel you wish to
-post notifications to.
+2. Identify the channel you wish to post notifications to - ie: #devops....
+3. Open the "more options" menu of that channel and select "Connectors".
     ![connector](images/connector.png)
-3. Select "Incoming Webhook" and save the resulting link after being prompted
-for details like the icon and name of the connector.
+4. Select "Incoming Webhook" and respond to the propts for details like the
+icon and name of the connector.
     ![webhook](images/webhook.png)
-4. Use the webhook url from above in your pipeline `source` definition.  The
+5. Use the webhook url from above in your pipeline `source` definition.  The
 example below creates an `alert` resource.  Each point in the pipeline labeled
 `alert` is a Microsoft Teams Connector message.
 
