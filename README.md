@@ -27,7 +27,7 @@ $ATC_EXTERNAL_URL
 
 * Make `potentialAction` button/link optional
 
-## QUICK SETUP
+## SETUP
 
 1. Create a connector in the Teams UI - go to the hamburger menu of the channel you want to post
 notifications to.
