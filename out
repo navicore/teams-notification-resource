@@ -31,7 +31,7 @@ title=$(evaluate "$(jq -r '.params.title // "Concourse CI"' < "${payload}")")
 
 text=$(evaluate "$(jq -r '.params.text // "NO MSG"' < "${payload}")")
 
-body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\", \"title\": \"${title}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
+body="{\"TextFormat\": \"${format}\", \"text\": \"${text}\", \"title\": \"${title}\", \"themeColor\": \"${color}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
 
 webhook_url="$(jq -r '.source.url' < "${payload}")"
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
