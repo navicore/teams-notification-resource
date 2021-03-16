@@ -34,5 +34,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            navicore/team-notification-resource:${{ steps.prepare.outputs.tag_name }}
-            navicore/team-notification-resource:latest
+            navicore/teams-notification-resource:${{ steps.prepare.outputs.tag_name }}
+            navicore/teams-notification-resource:latest
