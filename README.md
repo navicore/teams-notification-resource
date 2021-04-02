@@ -105,8 +105,9 @@ example of an alert in a pull-request job
         actionName: {{mypipeline}} Pipeline
         actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 ```
-
-* `text`: *Required.* Text of the message to send - markdown supported
+* One of the following:
+  * `text`: *Required.* Text of the message to send - markdown supported (higher precedence over `text_file`)
+  * `text_file`: *Required.* A location of text file of the message to send, usually an output from a previous task - markdown supported
 * `title`: *Optional.*
 * `color`: *Optional.* Sidebar color (doesn't appear to be implemented yet in the Teams UI)
 * `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
