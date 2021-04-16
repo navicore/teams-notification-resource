@@ -30,7 +30,7 @@ actionTarget=$(evaluate "$(jq -r '.params.actionTarget // "https://concourse.ci"
 title=$(evaluate "$(jq -r '.params.title // "Concourse CI"' < "${payload}")")
 
 text=$(evaluate "$(jq -r '.params.text // ""' < "${payload}")")
-text_file=$(evaluate "$(jq -r '.params.text_file // ""' < "${payload}")")
+text_file="$1/"$(evaluate "$(jq -r '.params.text_file // ""' < "${payload}")")
 
 # - 'text' always overrides 'text_file'
 # - '_(NO MSG)_' being the default if neither are provded
