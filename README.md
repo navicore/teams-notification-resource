@@ -24,7 +24,7 @@ $ATC_EXTERNAL_URL
 
 ## STATUS
 
-* Alpha Quality
+* Actively used and supported (as of Oct '21)
 * Works - meets my specific needs
 
 
