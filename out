@@ -50,11 +50,30 @@ fi
 
 body="{\"TextFormat\": \"${format}\", \"text\": \"${text_output}\", \"title\": \"${title}\", \"themeColor\": \"${color}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
 
-webhook_url="$(jq -r '.source.url' < "${payload}")"
+webhook_url="$(jq -r '.source.url // empty' < "${payload}")"
+
+proxy_url="$(jq -r '.source.proxy_url // empty' < "${payload}")"
+proxy_port="$(jq -r '.source.proxy_port // empty' < "${payload}")"
+proxy_username="$(jq -r '.source.proxy_username // empty' < "${payload}")"
+proxy_password="$(jq -r '.source.proxy_password // empty' < "${payload}")"
+
+if [ -z ${proxy_url} ] || [ -z ${proxy_port} ]; then
+  PROXY_OPTIONS=""
+else
+  PROXY_OPTIONS="--proxy ${proxy_url}:${proxy_port}" 
+fi
+
+if [ -z ${proxy_url} ] || [ -z ${proxy_port} ] || [ -z ${proxy_username} ] || [ -z ${proxy_password} ]; then
+  PROXY_OPTIONS="${PROXY_OPTIONS}"
+else
+  PROXY_OPTIONS="--proxy-user ${proxy_username}:${proxy_password} ${PROXY_OPTIONS}" 
+fi
+
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
 
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
-curl ${CURL_OPTION} -d "${body}" "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
+
+curl ${CURL_OPTION} ${PROXY_OPTIONS} -d "${body}" "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
 
 timestamp=$(date +%s)
 metadata="$(cat <<EOF

@@ -59,13 +59,22 @@ resources:
   - name: alert
     type: teams-notification
     source:
-      url: https://outlook.office365.com/webhook/blah-blah-blah
+      url: https://outlook.office365.com/webhook/blah-blah-blah   [required]
+      proxy_url: https://my.corp.net                              [optional]
+      proxy_port: 1234                                            [optional]
+      proxy_username: myusername                                  [optional]
+      proxy_password: mysecret                                    [optional]
+
 ```
 * `url`: *Required.* The webhook URL as provided by Teams when you add a
 connection for "Incomming Webhook". Usually in the
 form: `https://outlook.office365.com/webhook/XXX`
+* `proxy_url`: *Optional.* Basic auth for forwarding proxies - prefix with protocol. ie: https://
+* `proxy_port`: *Optional.* Basic auth for forwarding proxies
+* `proxy_username`: *Optional.* Basic auth for forwarding proxies
+* `proxy_password`: *Optional.* Basic auth for forwarding proxies
 
-don't forget to define the non-built-in type:
+next, define the non-built-in type:
 
 ```
 resource_types:
@@ -109,7 +118,22 @@ example of an alert in a pull-request job
   * `text`: *Required.* Text of the message to send - markdown supported (higher precedence over `text_file`)
   * `text_file`: *Required.* A location of text file of the message to send, usually an output from a previous task - markdown supported
 * `title`: *Optional.*
-* `color`: *Optional.* Sidebar color (doesn't appear to be implemented yet in the Teams UI)
+* `color`: *Optional.* 
 * `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
 * `actionTarget`: *Optional.* URL to connect to the button/link
 
+
+# PROXY SUPPORT
+
+## Dev Env
+
+```
+sudo service squid start
+sudo vim /etc/squid/squid.conf
+sudo service squid restart
+sudo service squid stop
+```
+
+We tested proxy support with squid4.  We don't have access to a wide range of proxies.
+
+The ntlm flag on cURL is not set in our implementation but squid4 was happy to call our session ntlm.  We're open to PRs for more support of proxies.
