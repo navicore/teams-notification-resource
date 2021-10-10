@@ -1,0 +1,54 @@
+task-config: &task-config
+  platform: linux
+  image_resource:
+    type: registry-image
+    source: { repository: navicore/navibox }
+resources:
+- name: alert
+  type: teams-notification
+  source:
+    url: "PUT YOUR WEBHOOK HERE"
+resource_types:
+- name: teams-notification
+  type: docker-image
+  source:
+    repository: navicore/teams-notification-resource
+    tag: dev
+jobs:
+- name: hello-world-failing-job
+  plan:
+  - task: hello-world-failing-task
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: navicore/navibox
+      run:
+        path: ifail  # 'ifail' signals on_failure.  for on_success, use 'isucceed'
+    on_success:
+      task: job-success
+      config:
+        << : *task-config
+        run:
+          path: echo
+          args: ["This job succeeded!"]
+    on_success:
+      do:
+      - put: alert
+        params:
+          text: |
+            task tested: with no errors
+          title: hello-world-failing tested good
+          actionName: hello-world-failing Pipeline
+          actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+    on_failure:
+      do:
+      - put: alert
+        params:
+          color: FF0000
+          text: |
+            something failed in env.
+          title: something error
+          actionName: hello-world-failing Pipeline
+          actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
