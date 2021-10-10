@@ -1,0 +1,52 @@
+task-config: &task-config
+  platform: linux
+  image_resource:
+    type: registry-image
+    source: { repository: busybox }
+resources:
+- name: alert
+  type: teams-notification
+  source:
+    url: "PUT YOUR WEBHOOK HERE"
+    proxy_url: http://192.168.0.47
+    proxy_port: 1234
+resource_types:
+- name: teams-notification
+  type: docker-image
+  source:
+    repository: navicore/teams-notification-resource
+    tag: dev
+jobs:
+- name: hello-world-proxy-job
+  plan:
+  - task: hello-world-proxy-task
+    config:
+      # Tells Concourse which type of worker this task should run on
+      platform: linux
+      # This is one way of telling Concourse which container image to use for a
+      # task. We'll explain this more when talking about resources
+      image_resource:
+        type: registry-image
+        source:
+          repository: busybox # images are pulled from docker hub by default
+      # The command Concourse will run inside the container
+      # echo "Hello world!"
+      run:
+        path: echo
+        args: ["Hello world!"]
+    on_success:
+      task: job-success
+      config:
+        << : *task-config
+        run:
+          path: echo
+          args: ["This job succeeded!"]
+    on_success:
+      put: alert
+      params:
+        text: |
+          task tested: with no errors
+        title: hello-world-proxy tested good
+        actionName: hello-world-proxy Pipeline
+        actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+
