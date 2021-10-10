@@ -39,8 +39,8 @@ $ATC_EXTERNAL_URL
 2. Identify the channel you wish to post notifications to - ie: #devops....
 3. Open the "more options" menu of that channel and select "Connectors".
 ![connector](images/connector.png)
-4. Select "Incoming Webhook" and respond to the propts for details like the
-icon and name of the connector.
+4. Select "Incoming Webhook" and respond to the prompts for details like the
+icon and connector name.
 ![webhook](images/webhook.png)
 5. Use the webhook url from above in your pipeline `source` definition.  The
 example below creates an `alert` resource.  Each point in the pipeline labeled
