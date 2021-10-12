@@ -64,6 +64,7 @@ resources:
       proxy_port: 1234                                            [optional]
       proxy_username: myusername                                  [optional]
       proxy_password: mysecret                                    [optional]
+      skip_cert_verification                                      [optional]
 
 ```
 * `url`: *Required.* The webhook URL as provided by Teams when you add a
@@ -73,6 +74,9 @@ form: `https://outlook.office365.com/webhook/XXX`
 * `proxy_port`: *Optional.* Basic auth for forwarding proxies
 * `proxy_username`: *Optional.* Basic auth for forwarding proxies
 * `proxy_password`: *Optional.* Basic auth for forwarding proxies
+* `skip_cert_verification`: *Optional.* cURL `-k` option for debugging when behind TLS rewrite proxies when the internal cert is self-signed or not properly distributed
+* `verbose`: *Optional.* cURL `-v` option for debugging 
+* `silent`: *Optional.* cURL `-s` option for no logging 
 
 next, define the non-built-in type:
 
