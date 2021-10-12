@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-CURL_OPTION="-v"
+CURL_OPTION=""
 
 set -e
 exec 3>&1
@@ -56,6 +56,9 @@ proxy_url="$(jq -r '.source.proxy_url // empty' < "${payload}")"
 proxy_port="$(jq -r '.source.proxy_port // empty' < "${payload}")"
 proxy_username="$(jq -r '.source.proxy_username // empty' < "${payload}")"
 proxy_password="$(jq -r '.source.proxy_password // empty' < "${payload}")"
+skip_cert_verification="$(jq -r '.source.skip_cert_verification // empty' < "${payload}")"
+verbose="$(jq -r '.source.verbose // empty' < "${payload}")"
+silent="$(jq -r '.source.silent // empty' < "${payload}")"
 
 if [ -z ${proxy_url} ] || [ -z ${proxy_port} ]; then
   PROXY_OPTIONS=""
@@ -67,6 +70,24 @@ if [ -z ${proxy_url} ] || [ -z ${proxy_port} ] || [ -z ${proxy_username} ] || [ 
   PROXY_OPTIONS="${PROXY_OPTIONS}"
 else
   PROXY_OPTIONS="--proxy-user ${proxy_username}:${proxy_password} ${PROXY_OPTIONS}" 
+fi
+
+if [ -z ${skip_cert_verification} ]; then
+  CURL_OPTION="${CURL_OPTION}"
+else
+  CURL_OPTION="-k ${CURL_OPTION}" 
+fi
+
+if [ -z ${verbose} ]; then
+  CURL_OPTION="${CURL_OPTION}" 
+else
+  CURL_OPTION="-v ${CURL_OPTION}" 
+fi
+
+if [ -z ${silent} ]; then
+  CURL_OPTION="${CURL_OPTION}" 
+else
+  CURL_OPTION="-s ${CURL_OPTION}" 
 fi
 
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
