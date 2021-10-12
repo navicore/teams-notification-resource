@@ -65,6 +65,8 @@ resources:
       proxy_username: myusername                                  [optional]
       proxy_password: mysecret                                    [optional]
       skip_cert_verification                                      [optional]
+      verbose                                                     [optional]
+      silent                                                      [optional]
 
 ```
 * `url`: *Required.* The webhook URL as provided by Teams when you add a
