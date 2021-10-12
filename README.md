@@ -25,12 +25,7 @@ $ATC_EXTERNAL_URL
 ## STATUS
 
 * Actively used and supported (as of Oct '21)
-* Works - meets my specific needs
-
-
-## TODO
-
-* Make `potentialAction` button/link optional
+* Works with all Concourse CI releases from 11/2016 thru at least 10/2021
 
 
 ## SETUP
@@ -80,7 +75,7 @@ form: `https://outlook.office365.com/webhook/XXX`
 * `verbose`: *Optional.* cURL `-v` option for debugging 
 * `silent`: *Optional.* cURL `-s` option for no logging 
 
-next, define the non-built-in type:
+Next, define the non-built-in type:
 
 ```
 resource_types:
@@ -94,7 +89,7 @@ resource_types:
 
 ## Param Configuration
 
-example of an alert in a pull-request job
+Example of an alert in a pull-request job:
 ```
 - name: Test-Pull-Request
   plan:
@@ -128,10 +123,20 @@ example of an alert in a pull-request job
 * `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
 * `actionTarget`: *Optional.* URL to connect to the button/link
 
+# MORE EXAMPLES
+
+
+See `*.yml` files in the ![testing](testing) directory.
+
+# DEVELOPMENT ENVIRONMENT
+
+Testing with docker-compose.  
+
+See working standalone docker-compose example in ![testing](testing) dir.
 
 # PROXY SUPPORT
 
-## Dev Env
+Proxy support testing is limited to squid4.  Dev env was created with default squid4 setup.
 
 ```
 sudo service squid start
