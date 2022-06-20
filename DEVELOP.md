@@ -1,6 +1,10 @@
 notes for creating and using a dev env
 =================
 
+These notes are just for setting up a local instance for dev of this plugin
+only - DO NOT USE THESE INSTRUCTIONS for any installation visible
+to the Internet.
+
 ```bash
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
 helm install my-release concourse/concourse
@@ -18,7 +22,6 @@ port 8080: my-cicd-web.default.svc.cluster.local
     kubectl port-forward --namespace default $POD_NAME 8080:8080
     echo "Visit http://127.0.0.1:8080 to use Concourse"
 
-You're using the default "test" user with the default "test" password. 
+Use the default "test" user with the default "test" password. 
 
-Make sure you either disable local auth or change the combination to something more secure, preferably specifying a password in the bcrypted form.
 ```
