@@ -3,7 +3,8 @@ notes for creating and using a dev env
 
 These notes are just for setting up a local instance for dev of this plugin
 only - DO NOT USE THESE INSTRUCTIONS for any installation visible
-to the Internet.
+to the Internet or any network - I'm using these on a K8D/K8S installation on
+my laptop.
 
 ```bash
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
