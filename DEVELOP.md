@@ -8,7 +8,7 @@ my laptop.
 
 ```bash
 helm repo add concourse https://concourse-charts.storage.googleapis.com/
-helm install my-release concourse/concourse
+helm install my-cicd concourse/concourse
 ```
 
 ```bash
