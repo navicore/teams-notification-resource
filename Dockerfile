@@ -1,4 +1,4 @@
-FROM ubuntu:21.04
+FROM ubuntu:22.04
 
 ADD http://stedolan.github.io/jq/download/linux64/jq /usr/local/bin/jq
 
