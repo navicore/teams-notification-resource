@@ -94,7 +94,7 @@ redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{
 
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
 
-curl ${CURL_OPTION} ${PROXY_OPTIONS} -d "${body}" "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
+curl ${CURL_OPTION} ${PROXY_OPTIONS} -H 'Content-Type: application/json' -d "${body}" "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
 
 timestamp=$(date +%s)
 metadata="$(cat <<EOF
