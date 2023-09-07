@@ -21,7 +21,6 @@ payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
 format="markdown"
-color="$(jq -r '.params.color // "00EA43"' < "${payload}")"
 
 actionName=$(evaluate "$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")")
 
@@ -48,7 +47,31 @@ if [[ -n "${text_file}" ]]; then
 fi
 [[ -n "${text}" ]] && text_output="${text}"
 
-body="{\"TextFormat\": \"${format}\", \"text\": \"${text_output}\", \"title\": \"${title}\", \"themeColor\": \"${color}\", \"potentialAction\": [{\"@context\": \"https://schema.org\", \"@type\": \"ViewAction\", \"name\": \"${actionName}\", \"target\": [\"${actionTarget}\"]}]}"
+# style should be one of 'good', 'attention', 'warning', 'default'
+# good (green) if the build succeeded
+# attention (red) if the build failed
+# warning (yellow) if the build errored
+# default (gray) by default
+# look for pass/fail/error in the title
+style=$(evaluate "$(jq -r '.params.style // "default"' < "${payload}")")
+[[ "${title}" =~ (pass|succeed|success) ]] && style="good"
+[[ "${title}" =~ (fail) ]] && style="attention"
+[[ "${title}" =~ (error) ]] && style="warning"
+# or in the text_output if we didn't find it in the title
+[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (pass|succeed|success) ]] && style="good"
+[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (fail) ]] && style="attention"
+[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (error) ]] && style="warning"
+
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+
+body=$(jq -n --arg format "${format}" \
+  --arg actionName "${actionName}" \
+  --arg actionTarget "${actionTarget}" \
+  --arg title "${title}" \
+  --arg text "${text_output}" \
+  --arg style "${style}" \
+  -f ${DIR}/card.jq)
 
 webhook_url="$(jq -r '.source.url // empty' < "${payload}")"
 
