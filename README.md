@@ -101,7 +101,7 @@ Example of an alert in a pull-request job:
       put: alert
       params:
         text: |
-          pull request tested: with no errors
+          pull request tested: success
         title: {{mypipeline}} Pull Request Tested
         actionName: {{mypipeline}} Pipeline
         actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
@@ -119,9 +119,10 @@ Example of an alert in a pull-request job:
   * `text`: *Required.* Text of the message to send - markdown supported (higher precedence over `text_file`)
   * `text_file`: *Required.* A location of text file of the message to send, usually an output from a previous task - markdown supported
 * `title`: *Optional.*
-* `color`: *Optional.* 
 * `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
 * `actionTarget`: *Optional.* URL to connect to the button/link
+* `style`: *Optional.* Adaptive Card header style. Can be one of 'good', 'attention', 'warning'. If not provided, `title` and `text` are scanned for keywords to determine the style. If no keywords are found, 'default' is used.
+* ~~`color`~~: *Deprecated* 
 
 # MORE EXAMPLES
 
