@@ -54,13 +54,13 @@ fi
 # default (gray) by default
 # look for pass/fail/error in the title
 style=$(evaluate "$(jq -r '.params.style // "default"' < "${payload}")")
-[[ "${title}" =~ (pass|succeed|success) ]] && style="good"
-[[ "${title}" =~ (fail) ]] && style="attention"
-[[ "${title}" =~ (error) ]] && style="warning"
+[[ "${title,,}" =~ (pass|succeed|success) ]] && style="good"
+[[ "${title,,}" =~ (fail) ]] && style="attention"
+[[ "${title,,}" =~ (error) ]] && style="warning"
 # or in the text_output if we didn't find it in the title
-[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (pass|succeed|success) ]] && style="good"
-[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (fail) ]] && style="attention"
-[[ "${style}" == "default" ]] && [[ "${text_output}" =~ (error) ]] && style="warning"
+[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (pass|succeed|success) ]] && style="good"
+[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (fail) ]] && style="attention"
+[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (error) ]] && style="warning"
 
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
