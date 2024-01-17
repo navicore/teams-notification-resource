@@ -84,7 +84,7 @@ resource_types:
   type: docker-image
   source:
     repository: navicore/teams-notification-resource
-    tag: v0.9.9
+    tag: v0.9.12
 ```
 
 ## Param Configuration
