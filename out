@@ -60,7 +60,7 @@ style=$(evaluate "$(jq -r '.params.style // "default"' < "${payload}")")
 # or in the text_output if we didn't find it in the title
 [[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (pass|succeed|success) ]] && style="good"
 [[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (fail) ]] && style="attention"
-[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (error) ]] && style="warning"
+[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (error|warning) ]] && style="warning"
 
 DIR="${BASH_SOURCE%/*}"
 if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
