@@ -1,7 +1,8 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y curl jq
+    DEBIAN_FRONTEND=noninteractive apt-get install -y curl jq && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY check   /opt/resource/check
 COPY in      /opt/resource/in
