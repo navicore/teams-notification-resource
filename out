@@ -24,7 +24,7 @@ format="markdown"
 
 actionName=$(evaluate "$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")")
 
-actionTarget=$(evaluate "$(jq -r '.params.actionTarget // "https://concourse.ci"' < "${payload}")")
+actionTarget=$(evaluate "$(jq -r '.params.actionTarget // "https://concourse-ci.org/"' < "${payload}")")
 
 title=$(evaluate "$(jq -r '.params.title // "Concourse CI"' < "${payload}")")
 
