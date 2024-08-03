@@ -1,6 +1,6 @@
 ----------
 
-## NOTICE - help wanted
+## NOTICE - help wanted - Aug 2024
 MSFT is ending support of the connector protocol and this module will need to be migrated to the new Teams Workflow method https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/
 
 -----------
