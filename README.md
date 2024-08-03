@@ -1,3 +1,10 @@
+----------
+
+## NOTICE - help wanted
+MSFT is ending support of the connector protocol and this module will need to be migrated to the new Teams Workflow method https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/
+
+-----------
+
 # Concourse CI Teams Resource
 
 Sends messages to [Microsoft Teams](https://teams.microsoft.com) from
