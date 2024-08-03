@@ -3,6 +3,8 @@
 ## NOTICE - help wanted - Aug 2024
 MSFT is ending support of the connector protocol and this module will need to be migrated to the new Teams Workflow method https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/
 
+PRs welcome, as well as advice of where to direct users if a new project that has the same features but isn't broken by MSFT emerges.
+
 -----------
 
 # Concourse CI Teams Resource
