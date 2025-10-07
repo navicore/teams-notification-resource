@@ -1,16 +1,9 @@
-----------
-
-## NOTICE - help wanted - Aug 2024
-MSFT is ending support of the connector protocol and this module will need to be migrated to the new Teams Workflow method https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/
-
-PRs welcome, as well as advice of where to direct users if a new project that has the same features but isn't broken by MSFT emerges.
-
------------
-
 # Concourse CI Teams Resource
 
 Sends messages to [Microsoft Teams](https://teams.microsoft.com) from
-within [Concourse CI](https://concourse-ci.org/) pipelines.
+within [Concourse CI](https://concourse-ci.org/) pipelines, using the new Teams Workflow method.
+
+## NOTE: THIS IS WORK IN PROGRESS -  DO NOT USE IN PRODUCTION
 
 Implements the Microsoft Teams
 [Connector](https://dev.outlook.com/Connectors/Reference) protocols and
@@ -36,7 +29,6 @@ $ATC_EXTERNAL_URL
 * Actively used and supported (as of Oct '21)
 * Works with all Concourse CI releases from 11/2016 thru at least 10/2021
 
-
 ## SETUP
 
 1. Open the Microsoft Teams UI.
@@ -49,7 +41,6 @@ icon and connector name.
 5. Use the webhook url from above in your pipeline `source` definition.  The
 example below creates an `alert` resource.  Each point in the pipeline labeled
 `alert` is a Microsoft Teams Connector message.
-
 
 ## PIPELINE EXAMPLE
 
@@ -73,6 +64,7 @@ resources:
       silent                                                      [optional]
 
 ```
+
 * `url`: *Required.* The webhook URL as provided by Teams when you add a
 connection for "Incomming Webhook". Usually in the
 form: `https://outlook.office365.com/webhook/XXX`
@@ -81,8 +73,8 @@ form: `https://outlook.office365.com/webhook/XXX`
 * `proxy_username`: *Optional.* Basic auth for forwarding proxies
 * `proxy_password`: *Optional.* Basic auth for forwarding proxies
 * `skip_cert_verification`: *Optional.* cURL `-k` option for debugging when behind TLS rewrite proxies when the internal cert is self-signed or not properly distributed
-* `verbose`: *Optional.* cURL `-v` option for debugging 
-* `silent`: *Optional.* cURL `-s` option for no logging 
+* `verbose`: *Optional.* cURL `-v` option for debugging
+* `silent`: *Optional.* cURL `-s` option for no logging
 
 Next, define the non-built-in type:
 
@@ -99,6 +91,7 @@ resource_types:
 ## Param Configuration
 
 Example of an alert in a pull-request job:
+
 ```
 - name: Test-Pull-Request
   plan:
@@ -124,6 +117,7 @@ Example of an alert in a pull-request job:
         actionName: {{mypipeline}} Pipeline
         actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
 ```
+
 * One of the following:
   * `text`: *Required.* Text of the message to send - markdown supported (higher precedence over `text_file`)
   * `text_file`: *Required.* A location of text file of the message to send, usually an output from a previous task - markdown supported
@@ -131,10 +125,9 @@ Example of an alert in a pull-request job:
 * `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
 * `actionTarget`: *Optional.* URL to connect to the button/link
 * `style`: *Optional.* Adaptive Card header style. Can be one of 'good', 'attention', 'warning'. If not provided, `title` and `text` are scanned for keywords to determine the style. If no keywords are found, 'default' is used.
-* ~~`color`~~: *Deprecated* 
+* ~~`color`~~: *Deprecated*
 
 # MORE EXAMPLES
-
 
 See `*.yml` files in the ![testing](testing) directory.
 

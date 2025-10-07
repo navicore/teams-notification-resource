@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
 CURL_OPTION=""
-
 set -e
 exec 3>&1
 exec 1>&2
-#set -x
 
 function evaluate {
   __var=$1
@@ -13,24 +11,20 @@ function evaluate {
   __var="${__var//\(/\\(}"
   __var="${__var//\)/\\)}"
   __var="${__var//\:/\\:}"
-  __var=`eval echo $__var`
+  __var=$(eval echo $__var)
   echo $__var
 }
 
 payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
 
-format="markdown"
-
-actionName=$(evaluate "$(jq -r '.params.actionName // "Open Concourse"' < "${payload}")")
-
-actionTarget=$(evaluate "$(jq -r '.params.actionTarget // "https://concourse-ci.org/"' < "${payload}")")
-
+# ---- Read params (new workflow compatible) ----
 title=$(evaluate "$(jq -r '.params.title // "Concourse CI"' < "${payload}")")
 
 text=$(evaluate "$(jq -r '.params.text // ""' < "${payload}")")
 text_file="$1/"$(evaluate "$(jq -r '.params.text_file // ""' < "${payload}")")
 
+# Text resolution (retain legacy logic)
 # - 'text' always overrides 'text_file'
 # - '_(NO MSG)_' being the default if neither are provded
 # - If text file is missing: _(NO MSG FILE)_
@@ -40,41 +34,49 @@ if [[ -n "${text_file}" ]]; then
   if [[ ! -f "${text_file}" ]]; then
     text_output="_(NO MSG FILE)_"
   else
-    text_output="$(cat "${text_file}")" && \
-              [[ -z "${text_output}" ]] && \
-			  text_output="_(EMPTY MSG FILE)_"
+    text_output="$(cat "${text_file}")"
+    [[ -z "${text_output}" ]] && text_output="_(EMPTY MSG FILE)_"
   fi
 fi
 [[ -n "${text}" ]] && text_output="${text}"
 
-# style should be one of 'good', 'attention', 'warning', 'default'
-# good (green) if the build succeeded
-# attention (red) if the build failed
-# warning (yellow) if the build errored
-# default (gray) by default
-# look for pass/fail/error in the title
-style=$(evaluate "$(jq -r '.params.style // "default"' < "${payload}")")
-[[ "${title,,}" =~ (pass|succeed|success) ]] && style="good"
-[[ "${title,,}" =~ (fail) ]] && style="attention"
-[[ "${title,,}" =~ (error|warning) ]] && style="warning"
-# or in the text_output if we didn't find it in the title
-[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (pass|succeed|success) ]] && style="good"
-[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (fail) ]] && style="attention"
-[[ "${style}" == "default" ]] && [[ "${text_output,,}" =~ (error|warning) ]] && style="warning"
+# Color (fallback to legacy style param)
+color=$(evaluate "$(jq -r '.params.color // .params.style // "default"' < "${payload}")")
+ALLOWED_COLORS="default dark light accent good warning attention"
+if [[ ! " ${ALLOWED_COLORS} " =~ " ${color} " ]]; then
+  echo "Invalid color: ${color}. Allowed: ${ALLOWED_COLORS}" >&2
+  exit 1
+fi
+
+# Button (fallback to legacy actionName/actionTarget)
+button_url=$(evaluate "$(jq -r '.params.button_url // .params.actionTarget // empty' < "${payload}")")
+button_text=$(evaluate "$(jq -r '.params.button_text // .params.actionName // "URL"' < "${payload}")")
+
+# Expandable card params
+expandable_title=$(evaluate "$(jq -r '.params.expandable_title // "View more"' < "${payload}")")
+expandable_text=$(evaluate "$(jq -r '.params.expandable_text // empty' < "${payload}")")
+expandable_logo=$(evaluate "$(jq -r '.params.expandable_logo // empty' < "${payload}")")
+
+# Optional image
+image_url=$(evaluate "$(jq -r '.params.image_url // empty' < "${payload}")")
 
 DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+[[ ! -d "$DIR" ]] && DIR="$PWD"
 
-body=$(jq -n --arg format "${format}" \
-  --arg actionName "${actionName}" \
-  --arg actionTarget "${actionTarget}" \
-  --arg title "${title}" \
-  --arg text "${text_output}" \
-  --arg style "${style}" \
+# Build JSON body via updated card.jq
+body=$(jq -n \
+  --arg COLOR "${color}" \
+  --arg TITLE "${title}" \
+  --arg TEXT "${text_output}" \
+  --arg BUTTON_URL "${button_url}" \
+  --arg BUTTON_TEXT "${button_text}" \
+  --arg EXPANDABLE_TITLE "${expandable_title}" \
+  --arg EXPANDABLE_TEXT "${expandable_text}" \
+  --arg EXPANDABLE_LOGO "${expandable_logo}" \
+  --arg IMAGE_URL "${image_url}" \
   -f ${DIR}/card.jq)
 
 webhook_url="$(jq -r '.source.url // empty' < "${payload}")"
-
 proxy_url="$(jq -r '.source.proxy_url // empty' < "${payload}")"
 proxy_port="$(jq -r '.source.proxy_port // empty' < "${payload}")"
 proxy_username="$(jq -r '.source.proxy_username // empty' < "${payload}")"
@@ -83,41 +85,40 @@ skip_cert_verification="$(jq -r '.source.skip_cert_verification // empty' < "${p
 verbose="$(jq -r '.source.verbose // empty' < "${payload}")"
 silent="$(jq -r '.source.silent // empty' < "${payload}")"
 
+if [[ -z "${webhook_url}" ]]; then
+  echo "Missing source.url (Teams workflow webhook URL)" >&2
+  exit 1
+fi
+
+# Proxy handling (unchanged logic)
 if [ -z ${proxy_url} ] || [ -z ${proxy_port} ]; then
   PROXY_OPTIONS=""
 else
-  PROXY_OPTIONS="--proxy ${proxy_url}:${proxy_port}" 
+  PROXY_OPTIONS="--proxy ${proxy_url}:${proxy_port}"
 fi
-
 if [ -z ${proxy_url} ] || [ -z ${proxy_port} ] || [ -z ${proxy_username} ] || [ -z ${proxy_password} ]; then
   PROXY_OPTIONS="${PROXY_OPTIONS}"
 else
-  PROXY_OPTIONS="--proxy-user ${proxy_username}:${proxy_password} ${PROXY_OPTIONS}" 
+  PROXY_OPTIONS="--proxy-user ${proxy_username}:${proxy_password} ${PROXY_OPTIONS}"
 fi
 
-if [ -z ${skip_cert_verification} ]; then
-  CURL_OPTION="${CURL_OPTION}"
-else
-  CURL_OPTION="-k ${CURL_OPTION}" 
+# Curl flags
+if [ -n "${skip_cert_verification}" ]; then
+  CURL_OPTION="-k ${CURL_OPTION}"
 fi
-
-if [ -z ${verbose} ]; then
-  CURL_OPTION="${CURL_OPTION}" 
-else
-  CURL_OPTION="-v ${CURL_OPTION}" 
+if [ -n "${verbose}" ]; then
+  CURL_OPTION="-v ${CURL_OPTION}"
 fi
-
-if [ -z ${silent} ]; then
-  CURL_OPTION="${CURL_OPTION}" 
-else
-  CURL_OPTION="-s ${CURL_OPTION}" 
+if [ -n "${silent}" ]; then
+  CURL_OPTION="-s ${CURL_OPTION}"
 fi
 
 redacted_webhook_url=$(echo "${webhook_url}" | sed -e 's#/\([^/\.]\{2\}\)[^/.]\{5,\}\([^/.]\{2\}\)#/\1…\2#g' | jq -R .)
-
 url_path="$(echo ${webhook_url} | sed -e "s/https\{0,1\}:\/\/[^\/]*\(\/[^?&#]*\).*/\1/")"
 
-curl ${CURL_OPTION} ${PROXY_OPTIONS} -H 'Content-Type: application/json' -d "${body}" "${webhook_url}" 2>&1 | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
+# Post (new workflow format)
+curl ${CURL_OPTION} ${PROXY_OPTIONS} -H 'Content-Type: application/json' -d "${body}" "${webhook_url}" 2>&1 \
+  | sed -e "s#${url_path}#***WEBHOOK URL REDACTED***#g"
 
 timestamp=$(date +%s)
 metadata="$(cat <<EOF
@@ -130,6 +131,5 @@ metadata="$(cat <<EOF
 }
 EOF
 )"
-
-echo "$metadata"  >&3
+echo "$metadata" >&3
 
