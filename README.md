@@ -1,26 +1,13 @@
-----------
+# Concourse CI Teams Workflow Resource
 
-## NOTICE - help wanted - Aug 2024
-MSFT is ending support of the connector protocol and this module will need to be migrated to the new Teams Workflow method https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/
+Send messages to [Microsoft Teams](https://teams.microsoft.com) from [Concourse CI](https://concourse-ci.org/) pipelines using the Microsoft Teams Workflow: “Post to a chat when a webhook request is received.”  
+Legacy Office 365 Connectors are deprecated; this resource now targets the new workflow format (Adaptive Cards via workflow webhook).
 
-PRs welcome, as well as advice of where to direct users if a new project that has the same features but isn't broken by MSFT emerges.
+![Teams Adaptive Card](images/teams2.png)
 
------------
+## Runtime Variable Expansion
 
-# Concourse CI Teams Resource
-
-Sends messages to [Microsoft Teams](https://teams.microsoft.com) from
-within [Concourse CI](https://concourse-ci.org/) pipelines.
-
-Implements the Microsoft Teams
-[Connector](https://dev.outlook.com/Connectors/Reference) protocols and
-the Concourse CI [resource](https://concourse-ci.org/implementing-resource-types.html)
-protocols.
-
-![teams](images/teams2.png)
-
-Resolves at runtime Concourse CI environment variables referenced in your Teams
-connector messages such as:
+Concourse environment variables in params are resolved at runtime, e.g.:
 
 ```
 $BUILD_ID
@@ -31,130 +18,154 @@ $BUILD_TEAM_NAME
 $ATC_EXTERNAL_URL
 ```
 
-## STATUS
+## Status
 
-* Actively used and supported (as of Oct '21)
-* Works with all Concourse CI releases from 11/2016 thru at least 10/2021
+* Actively maintained (updated for Teams Workflow replacement of deprecated connectors)
+* Works with current Adaptive Card workflow webhooks
 
+## Setup (Get a Workflow Webhook URL)
 
-## SETUP
+1. In Teams, open the target channel (or chat).
+2. Choose “Workflows” (or “Apps” -> search “Workflows”) and add the template “Post to a chat when a webhook request is received.”
+3. Finish the template; copy the generated webhook URL.
+4. Use that URL as `source.url` in the resource definition.
 
-1. Open the Microsoft Teams UI.
-2. Identify the channel you wish to post notifications to - ie: #devops....
-3. Open the "more options" menu of that channel and select "Connectors".
-![connector](images/connector.png)
-4. Select "Incoming Webhook" and respond to the prompts for details like the
-icon and connector name.
-![webhook](images/webhook.png)
-5. Use the webhook url from above in your pipeline `source` definition.  The
-example below creates an `alert` resource.  Each point in the pipeline labeled
-`alert` is a Microsoft Teams Connector message.
+## Resource Type Definition
 
-
-## PIPELINE EXAMPLE
-
-![pipeline](images/pipeline.png)
-
-### Source Configuration
-
+```yaml
+resource_types:
+  - name: teams-notification
+    type: docker-image
+    source:
+      repository: navicore/teams-notification-resource
+      tag: v0.x.x   # use the desired version
 ```
-resources:
 
+## Resource Configuration (Source)
+
+```yaml
+resources:
   - name: alert
     type: teams-notification
     source:
-      url: https://outlook.office365.com/webhook/blah-blah-blah   [required]
-      proxy_url: https://my.corp.net                              [optional]
-      proxy_port: 1234                                            [optional]
-      proxy_username: myusername                                  [optional]
-      proxy_password: mysecret                                    [optional]
-      skip_cert_verification                                      [optional]
-      verbose                                                     [optional]
-      silent                                                      [optional]
-
-```
-* `url`: *Required.* The webhook URL as provided by Teams when you add a
-connection for "Incomming Webhook". Usually in the
-form: `https://outlook.office365.com/webhook/XXX`
-* `proxy_url`: *Optional.* Basic auth for forwarding proxies - prefix with protocol. ie: https://
-* `proxy_port`: *Optional.* Basic auth for forwarding proxies
-* `proxy_username`: *Optional.* Basic auth for forwarding proxies
-* `proxy_password`: *Optional.* Basic auth for forwarding proxies
-* `skip_cert_verification`: *Optional.* cURL `-k` option for debugging when behind TLS rewrite proxies when the internal cert is self-signed or not properly distributed
-* `verbose`: *Optional.* cURL `-v` option for debugging 
-* `silent`: *Optional.* cURL `-s` option for no logging 
-
-Next, define the non-built-in type:
-
-```
-resource_types:
-
-- name: teams-notification
-  type: docker-image
-  source:
-    repository: navicore/teams-notification-resource
-    tag: v0.9.12
+      url: ((teams_webhook_url))          # required (workflow webhook)
+      proxy_url: https://proxy.example    # optional
+      proxy_port: 3128                    # optional
+      proxy_username: myuser              # optional
+      proxy_password: ((proxy_pass))      # optional
+      skip_cert_verification: true        # optional
+      verbose: true                       # optional
+      silent: true                        # optional (overrides verbose output)
 ```
 
-## Param Configuration
+Fields:
 
-Example of an alert in a pull-request job:
+* url: Required. Teams workflow webhook URL.
+* proxy_*: Optional HTTP proxy support (basic auth).
+* skip_cert_verification: Optional; adds curl -k.
+* verbose: Optional; adds curl -v.
+* silent: Optional; adds curl -s (suppresses progress/log noise).
+
+## Params (put)
+
+Exactly one of text or text_file must be provided.
+
+| Param | Required | Description |
+|-------|----------|-------------|
+| text | one of | Inline message body (markdown supported). Overrides text_file if both given. |
+| text_file | one of | Path (within input dir) to file containing message body (markdown). |
+| title | optional | Card title. Default: Concourse CI. |
+| color | optional | Adaptive Card TextBlock color: default, dark, light, accent, good, warning, attention. Default: default. |
+| button_url | optional | URL for main action button (not shown if empty). |
+| button_text | optional | Text for button. Default: URL. |
+| image_url | optional | Image displayed in a side column. |
+| expandable_text | optional | Adds an Action.ShowCard button if provided. |
+| expandable_title | optional | Title for expand button. Default: View more. |
+| expandable_logo | optional | iconUrl for expand button (optional). |
+| Legacy fallback (still accepted): actionName -> button_text, actionTarget -> button_url, style -> color (if valid). |
+| Deprecated / Removed: Previous connector-specific style heuristics; direct connector formatting. |
+
+Behavior notes:
+
+* If text_file path does not exist: _(NO MSG FILE)_.
+* If file exists but blank: _(EMPTY MSG FILE)_.
+* If neither provided: _(NO MSG)_ (generally you should supply one).
+
+## Example Pipeline Usage
+
+```yaml
+jobs:
+  - name: test-pull-request
+    plan:
+      - get: pr-repo
+        trigger: true
+      - task: run-tests
+        file: pr-repo/ci/test.yml
+        on_success:
+          put: alert
+          params:
+            title: PR Tests Passed
+            color: good
+            text: |
+              Pull request tested: success
+              Build: $BUILD_NAME
+            button_text: View Build
+            button_url: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            expandable_text: |
+              Detailed environment:
+              * Pipeline: $BUILD_PIPELINE_NAME
+              * Team: $BUILD_TEAM_NAME
+              * Job: $BUILD_JOB_NAME
+        on_failure:
+          put: alert
+          params:
+            title: PR Tests Failed
+            color: attention
+            text_file: pr-repo/output/test-summary.txt
+            button_text: View Failing Build
+            button_url: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            image_url: https://example.com/failure-icon.png
 ```
-- name: Test-Pull-Request
-  plan:
-  - get: {{mypipeline}}-pull-request
-    trigger: true
-  - task: test-pr
-    file: {{mypipeline}}-pull-request/pipeline/test-pr.yml
-    on_success:
-      put: alert
-      params:
-        text: |
-          pull request tested: success
-        title: {{mypipeline}} Pull Request Tested
-        actionName: {{mypipeline}} Pipeline
-        actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-    on_failure:
-      put: alert
-      params:
-        color: EA4300
-        text: |
-          pull request tested: **WITH ERRORS**
-        title: {{mypipeline}} Pull Request Tested
-        actionName: {{mypipeline}} Pipeline
-        actionTarget: $ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-```
-* One of the following:
-  * `text`: *Required.* Text of the message to send - markdown supported (higher precedence over `text_file`)
-  * `text_file`: *Required.* A location of text file of the message to send, usually an output from a previous task - markdown supported
-* `title`: *Optional.*
-* `actionName`: *Optional.* Text on the button/link (shows up as a link though the Teams docs show a button)
-* `actionTarget`: *Optional.* URL to connect to the button/link
-* `style`: *Optional.* Adaptive Card header style. Can be one of 'good', 'attention', 'warning'. If not provided, `title` and `text` are scanned for keywords to determine the style. If no keywords are found, 'default' is used.
-* ~~`color`~~: *Deprecated* 
 
-# MORE EXAMPLES
+## Backward Compatibility
 
+Older params actionName / actionTarget and style are mapped internally:
 
-See `*.yml` files in the ![testing](testing) directory.
+* actionName -> button_text
+* actionTarget -> button_url
+* style -> color (if a valid color token)
+You should migrate to the new names.
 
-# DEVELOPMENT ENVIRONMENT
+## Development
 
-Testing with docker-compose.  
+Scripts:
 
-See working standalone docker-compose example in ![testing](testing) dir.
+* out: Builds Adaptive Card JSON via jq and posts to workflow webhook.
+* card.jq: Template used by out script (pure jq).
 
-# PROXY SUPPORT
-
-Proxy support testing is limited to squid4.  Dev env was created with default squid4 setup.
+Local testing (proxy example):
 
 ```
 sudo service squid start
-sudo vim /etc/squid/squid.conf
+# adjust /etc/squid/squid.conf as needed
 sudo service squid restart
-sudo service squid stop
 ```
 
-We tested proxy support with squid4.  We don't have access to a wide range of proxies.
+We welcome PRs for additional proxy auth mechanisms (e.g., NTLM/kerberos variants).
 
-The ntlm flag on cURL is not set in our implementation but squid4 was happy to call our session ntlm.  We're open to PRs for more support of proxies.
+## Testing
+
+Add a temporary job using the resource and vary params (color, button_url, image_url, expandable_text) to verify rendering in Teams.
+
+## Troubleshooting
+
+| Issue | Cause | Resolution |
+|-------|-------|-----------|
+| 400 Bad Request | Malformed JSON | Enable verbose: set verbose: true in source, inspect output. |
+| Missing button | button_url empty | Supply button_url. |
+| Expand section missing | expandable_text empty | Provide expandable_text. |
+| Color not applied | Invalid color value | Use allowed list. |
+
+## License
+
+MIT (see repository root).
