@@ -1,3 +1,8 @@
+<!-- ghmig:moved -->
+> **This repository has moved to [https://git.navicore.tech/navicore/teams-notification-resource](https://git.navicore.tech/navicore/teams-notification-resource).**
+>
+> The GitHub copy is archived and no longer maintained.
+
 ----------
 
 ## NOTICE - help wanted - Aug 2024
